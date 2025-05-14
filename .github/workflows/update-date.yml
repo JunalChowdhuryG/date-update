@@ -1,4 +1,4 @@
-name: Actualizar fecha y hora y crear PR
+name: Actualizar fecha y hora en main
 
 on:
   schedule:
@@ -30,28 +30,12 @@ jobs:
           git config user.name "JunalChowdhuryG"
           git config user.email "chowdhurygomezjunaljohir@gmail.com"
 
-      - name: Crear nueva rama
-        run: |
-          BRANCH_NAME="update-date-$(date +%s)"
-          git checkout -b $BRANCH_NAME
-
       - name: Actualizar fecha.txt con fecha y hora Perú
         run: |
           TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S' >> fecha.txt
 
-      - name: Hacer commit y push
+      - name: Hacer commit y push a main
         run: |
           git add fecha.txt
-          git commit -m "Actualizar fecha y hora automáticamente"
-          git push --set-upstream origin $BRANCH_NAME
-
-      - name: Crear Pull Request
-        run: |
-          gh pr create \
-            --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
-            --body "Actualización automática de fecha y hora desde JunalChowdhuryG" \
-            --base main \
-            --head JunalChowdhuryG:$BRANCH_NAME \
-            --repo JunalChowdhuryGomez/date-update
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
+          git commit -m "Actualizar fecha y hora automáticamente" || echo "No hay cambios para cometer"
+          git push origin main
