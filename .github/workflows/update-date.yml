@@ -1,0 +1,50 @@
+name: Actualizar fecha y hora y crear PR
+
+on:
+  schedule:
+    - cron: '0 15 * * *'    # 10:00 AM Perú (15:00 UTC)
+    - cron: '30 20 * * *'   # 3:30 PM Perú (20:30 UTC)
+    - cron: '0 0 * * *'     # 7:00 PM Perú (00:00 UTC)
+  workflow_dispatch:
+
+jobs:
+  update-date:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clonar el repositorio
+        uses: actions/checkout@v3
+        with:
+          repository: JunalChowdhuryGomez/date-update  # Repositorio A
+          token: ${{ secrets.PAT_JUNALCHOWDHURYG }}   # PAT de JunalChowdhuryG
+
+      - name: Configurar Git
+        run: |
+          git config user.name "JunalChowdhuryG"
+          git config user.email "chowdhurygomezjunaljohir@gmail.com"
+
+      - name: Crear nueva rama
+        run: |
+          BRANCH_NAME="update-date-$(date +%s)"
+          git checkout -b $BRANCH_NAME
+
+      - name: Actualizar fecha.txt con fecha y hora Perú
+        run: |
+          TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S' >> fecha.txt
+
+      - name: Hacer commit y push
+        run: |
+          git add fecha.txt
+          git commit -m "Actualizar fecha y hora automáticamente"
+          git push origin $BRANCH_NAME
+
+      - name: Crear Pull Request
+        run: |
+          gh pr create \
+            --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
+            --body "Actualización automática de fecha y hora desde JunalChowdhuryG" \
+            --base main \
+            --head JunalChowdhuryG:$BRANCH_NAME \
+            --repo JunalChowdhuryGomez/date-update
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
