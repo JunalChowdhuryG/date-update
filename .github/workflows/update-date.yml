@@ -12,11 +12,18 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Verificar acceso al repositorio
+        run: |
+          gh repo view JunalChowdhuryGomez/date-update
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
+
       - name: Clonar el repositorio
         uses: actions/checkout@v3
         with:
-          repository: JunalChowdhuryGomez/date-update  # Repositorio A
-          token: ${{ secrets.PAT_JUNALCHOWDHURYG }}   # PAT de JunalChowdhuryG
+          repository: JunalChowdhuryGomez/date-update
+          token: ${{ secrets.PAT_JUNALCHOWDHURYG }}
+          ref: main  # Especifica la rama predeterminada
 
       - name: Configurar Git
         run: |
@@ -36,7 +43,7 @@ jobs:
         run: |
           git add fecha.txt
           git commit -m "Actualizar fecha y hora automáticamente"
-          git push origin $BRANCH_NAME
+          git push --set-upstream origin $BRANCH_NAME
 
       - name: Crear Pull Request
         run: |
