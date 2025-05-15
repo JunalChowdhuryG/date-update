@@ -35,7 +35,7 @@ jobs:
       - name: Actualizar fecha.txt con fecha y hora Perú
         run: |
           TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S' >> fecha.txt
-         .Concurrent: cat fecha.txt  # Depuración: mostrar contenido
+          cat fecha.txt  # Depuración: mostrar contenido
 
       - name: Hacer commit y push
         run: |
