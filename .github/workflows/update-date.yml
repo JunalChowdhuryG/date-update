@@ -29,10 +29,12 @@ jobs:
         run: |
           BRANCH_NAME="update-date-$(date +%s)"
           git checkout -b $BRANCH_NAME
+          echo "Rama creada: $BRANCH_NAME"
 
       - name: Actualizar fecha.txt con fecha y hora Perú
         run: |
           TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S' >> fecha.txt
+          cat fecha.txt  # Depuración: mostrar contenido de fecha.txt
 
       - name: Hacer commit y push
         run: |
@@ -40,9 +42,11 @@ jobs:
           git commit -m "Actualizar fecha y hora automáticamente" || echo "No hay cambios para cometer"
           echo "Ejecutando: git push --set-upstream origin $BRANCH_NAME"
           git push --set-upstream origin $BRANCH_NAME
+          git ls-remote --heads origin $BRANCH_NAME  # Depuración: verificar rama en remoto
 
       - name: Crear Pull Request al Repositorio A
         run: |
+          echo "Creando PR desde JunalChowdhuryG:$BRANCH_NAME a JunalChowdhuryGomez/date-update:main"
           gh pr create \
             --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
             --body "Actualización automática de fecha y hora desde JunalChowdhuryG" \
