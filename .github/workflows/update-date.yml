@@ -1,4 +1,4 @@
-name: Actualizar fecha y hora en main
+name: Actualizar fecha y hora y crear PR
 
 on:
   schedule:
@@ -12,30 +12,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Verificar acceso al repositorio
-        run: |
-          gh repo view JunalChowdhuryGomez/date-update
-        env:
-          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
-
-      - name: Clonar el repositorio
+      - name: Clonar el repositorio B (fork)
         uses: actions/checkout@v3
         with:
-          repository: JunalChowdhuryGomez/date-update
+          repository: JunalChowdhuryG/date-update
           token: ${{ secrets.PAT_JUNALCHOWDHURYG }}
-          ref: main  # Especifica la rama predeterminada
+          ref: main
 
       - name: Configurar Git
         run: |
           git config user.name "JunalChowdhuryG"
           git config user.email "chowdhurygomezjunaljohir@gmail.com"
 
+      - name: Crear nueva rama
+        run: |
+          BRANCH_NAME="update-date-$(date +%s)"
+          git checkout -b $BRANCH_NAME
+
       - name: Actualizar fecha.txt con fecha y hora Perú
         run: |
           TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S' >> fecha.txt
 
-      - name: Hacer commit y push a main
+      - name: Hacer commit y push
         run: |
           git add fecha.txt
           git commit -m "Actualizar fecha y hora automáticamente" || echo "No hay cambios para cometer"
-          git push origin main
+          git push --set-upstream origin $BRANCH_NAME
+
+      - name: Crear Pull Request al Repositorio A
+        run: |
+          gh pr create \
+            --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
+            --body "Actualización automática de fecha y hora desde JunalChowdhuryG" \
+            --base main \
+            --head JunalChowdhuryG:$BRANCH_NAME \
+            --repo JunalChowdhuryGomez/date-update
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
