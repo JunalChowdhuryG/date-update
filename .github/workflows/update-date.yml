@@ -15,7 +15,7 @@ jobs:
       - name: Clonar el repositorio
         uses: actions/checkout@v3
         with:
-          repository: JunalChowdhuryGomez/date-update
+          repository: JunalChowdhuryG/date-update
           token: ${{ secrets.PAT_JUNALCHOWDHURYG }}
           ref: main
 
@@ -47,28 +47,28 @@ jobs:
 
       - name: Crear Pull Request
         run: |
-          echo "Creando PR desde $BRANCH_NAME a main en JunalChowdhuryGomez/date-update"
+          echo "Creando PR desde $BRANCH_NAME a main en JunalChowdhuryG/date-update"
           gh pr create \
             --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
             --body "Actualización automática de fecha y hora" \
             --base main \
             --head $BRANCH_NAME \
-            --repo JunalChowdhuryGomez/date-update
+            --repo JunalChowdhuryG/date-update
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
 
       - name: Aprobar Pull Request
         run: |
-          PR_NUMBER=$(gh pr list --base main --head $BRANCH_NAME --repo JunalChowdhuryGomez/date-update --json number --jq '.[0].number')
+          PR_NUMBER=$(gh pr list --base main --head $BRANCH_NAME --repo JunalChowdhuryG/date-update --json number --jq '.[0].number')
           echo "Aprobando PR #$PR_NUMBER"
-          gh pr review $PR_NUMBER --approve --body "Aprobado automáticamente por GitHub Actions" --repo JunalChowdhuryGomez/date-update
+          gh pr review $PR_NUMBER --approve --body "Aprobado automáticamente por GitHub Actions" --repo JunalChowdhuryG/date-update
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
 
       - name: Fusionar Pull Request
         run: |
-          PR_NUMBER=$(gh pr list --base main --head $BRANCH_NAME --repo JunalChowdhuryGomez/date-update --json number --jq '.[0].number')
+          PR_NUMBER=$(gh pr list --base main --head $BRANCH_NAME --repo JunalChowdhuryG/date-update --json number --jq '.[0].number')
           echo "Fusionando PR #$PR_NUMBER"
-          gh pr merge $PR_NUMBER --merge --repo JunalChowdhuryGomez/date-update
+          gh pr merge $PR_NUMBER --merge --repo JunalChowdhuryG/date-update
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
