@@ -1,3 +1,4 @@
+# git config --global --add --bool push.autoSetupRemote true
 name: Actualizar fecha y hora y crear PR
 
 on:
@@ -28,8 +29,10 @@ jobs:
       - name: Crear nueva rama
         run: |
           BRANCH_NAME="update-date-$(date +%s)"
+          echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
           echo "Rama creada: $BRANCH_NAME"
+          git branch  # Depuración: mostrar ramas actuales
 
       - name: Actualizar fecha.txt con fecha y hora Perú
         run: |
@@ -38,14 +41,20 @@ jobs:
 
       - name: Hacer commit y push
         run: |
+          git branch
+          git status
           git add fecha.txt
           git commit -m "Actualizar fecha y hora automáticamente" || echo "No hay cambios para cometer"
           echo "Ejecutando: git push --set-upstream origin $BRANCH_NAME"
           git push --set-upstream origin $BRANCH_NAME
           git ls-remote --heads origin $BRANCH_NAME  # Depuración: verificar rama en remoto
+          git branch
+          git status
 
       - name: Crear Pull Request al Repositorio A
         run: |
+          git branch
+          git status
           echo "Creando PR desde JunalChowdhuryG:$BRANCH_NAME a JunalChowdhuryGomez/date-update:main"
           gh pr create \
             --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
