@@ -35,10 +35,10 @@ jobs:
 
       - name: Hacer commit y push
         run: |
-          git branch
           git add fecha.txt
           git commit -m "Actualizar fecha y hora automáticamente" || echo "No hay cambios para cometer"
-          git push -f --set-upstream origin $BRANCH_NAME
+          echo "Ejecutando: git push --set-upstream origin $BRANCH_NAME"
+          git push --set-upstream origin $BRANCH_NAME
 
       - name: Crear Pull Request al Repositorio A
         run: |
