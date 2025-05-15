@@ -1,5 +1,4 @@
-# git config --global --add --bool push.autoSetupRemote true
-name: Actualizar fecha y hora y crear PR
+name: Actualizar fecha y hora y gestionar PR
 
 on:
   schedule:
@@ -9,22 +8,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  update-date:
+  update-and-pr:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Clonar el repositorio B (fork)
+      - name: Clonar el repositorio
         uses: actions/checkout@v3
         with:
-          repository: JunalChowdhuryG/date-update
-          token: ${{ secrets.PAT_JUNALCHOWDHURYG }}
+          repository: JunalChowdhuryGomez/date-update
+          token: ${{ secrets.PAT_JUNALCHOWDHURYGOMEZ }}
           ref: main
 
       - name: Configurar Git
         run: |
-          git config user.name "JunalChowdhuryG"
-          git config user.email "chowdhurygomezjunaljohir@gmail.com"
-          git config --global --add --bool push.autoSetupRemote true
+          git config user.name "JunalChowdhuryGomez"
+          git config user.email "junalchowdhury2001@gmail.com"
 
       - name: Crear nueva rama
         run: |
@@ -32,35 +30,45 @@ jobs:
           echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
           git checkout -b $BRANCH_NAME
           echo "Rama creada: $BRANCH_NAME"
-          git branch  # Depuración: mostrar ramas actuales
+          git branch  # Depuración: mostrar ramas
 
       - name: Actualizar fecha.txt con fecha y hora Perú
         run: |
           TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S' >> fecha.txt
-          cat fecha.txt  # Depuración: mostrar contenido de fecha.txt
+         .Concurrent: cat fecha.txt  # Depuración: mostrar contenido
 
       - name: Hacer commit y push
         run: |
-          git branch
-          git status
           git add fecha.txt
-          git commit -m "Actualizar fecha y hora automáticamente" || echo "No hay cambios para cometer"
+          git commit -m "Actualizar fecha y hora automáticamente"
           echo "Ejecutando: git push --set-upstream origin $BRANCH_NAME"
           git push --set-upstream origin $BRANCH_NAME
-          git ls-remote --heads origin $BRANCH_NAME  # Depuración: verificar rama en remoto
-          git branch
-          git status
+          git ls-remote --heads origin $BRANCH_NAME  # Depuración: verificar rama
 
-      - name: Crear Pull Request al Repositorio A
+      - name: Crear Pull Request
         run: |
-          git branch
-          git status
-          echo "Creando PR desde JunalChowdhuryG:$BRANCH_NAME a JunalChowdhuryGomez/date-update:main"
+          echo "Creando PR desde $BRANCH_NAME a main en JunalChowdhuryGomez/date-update"
           gh pr create \
             --title "Actualizar fecha y hora $(TZ='America/Lima' date '+%d/%m/%Y %H:%M:%S')" \
-            --body "Actualización automática de fecha y hora desde JunalChowdhuryG" \
+            --body "Actualización automática de fecha y hora" \
             --base main \
-            --head JunalChowdhuryG:$BRANCH_NAME \
+            --head $BRANCH_NAME \
             --repo JunalChowdhuryGomez/date-update
         env:
-          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYG }}
+          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYGOMEZ }}
+
+      - name: Aprobar Pull Request
+        run: |
+          PR_NUMBER=$(gh pr list --base main --head $BRANCH_NAME --repo JunalChowdhuryGomez/date-update --json number --jq '.[0].number')
+          echo "Aprobando PR #$PR_NUMBER"
+          gh pr review $PR_NUMBER --approve --body "Aprobado automáticamente por GitHub Actions" --repo JunalChowdhuryGomez/date-update
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYGOMEZ }}
+
+      - name: Fusionar Pull Request
+        run: |
+          PR_NUMBER=$(gh pr list --base main --head $BRANCH_NAME --repo JunalChowdhuryGomez/date-update --json number --jq '.[0].number')
+          echo "Fusionando PR #$PR_NUMBER"
+          gh pr merge $PR_NUMBER --merge --repo JunalChowdhuryGomez/date-update
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_JUNALCHOWDHURYGOMEZ }}
